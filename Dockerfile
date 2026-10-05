@@ -66,12 +66,25 @@ ENV PATH="$VENV/bin:$PATH"
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir black
 
-# ── VS Code extensions
-ENV EXTENSIONS_DIR=/home/coder/.local/share/code-server/extensions
-RUN mkdir -p $EXTENSIONS_DIR
-RUN code-server --extensions-dir $EXTENSIONS_DIR \
+# ── VS Code extensions (utanför /home så en PVC inte döljer dem)
+ENV EXTENSIONS_DIR=/opt/code-server/extensions
+
+# Från Open VSX
+RUN mkdir -p $EXTENSIONS_DIR && \
+    code-server --extensions-dir $EXTENSIONS_DIR \
         --install-extension ms-python.python \
         --install-extension ms-python.black-formatter
+
+# Alla .vsix-filer i repots extensions/-mapp
+COPY extensions/ /tmp/extensions/
+RUN for f in /tmp/extensions/*.vsix; do \
+        [ -e "$f" ] || continue; \
+        echo "Installing $f"; \
+        code-server --extensions-dir $EXTENSIONS_DIR --install-extension "$f" || exit 1; \
+    done && \
+    rm -rf /tmp/extensions && \
+    code-server --extensions-dir $EXTENSIONS_DIR --list-extensions
+
 # ── SSH-katalog (authorized_keys monteras in vid körning)
 RUN mkdir -p /home/coder/.ssh/hostkeys
 
@@ -81,9 +94,9 @@ COPY settings.json /home/coder/.local/share/code-server/User/settings.json
 
 RUN echo 'source /opt/venv/bin/activate' >> /home/coder/.bashrc
 
-RUN chown -R coder:coder /home/coder $VENV && \
-    chgrp -R 0 /home/coder $VENV && \
-    chmod -R g=u /home/coder $VENV
+RUN chown -R coder:coder /home/coder $VENV /opt/code-server && \
+    chgrp -R 0 /home/coder $VENV /opt/code-server && \
+    chmod -R g=u /home/coder $VENV /opt/code-server
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh

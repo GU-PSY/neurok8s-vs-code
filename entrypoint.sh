@@ -3,6 +3,9 @@ set -euo pipefail
 
 export HOME=/home/coder
 
+# ── OpenShift kör med slumpmässigt UID som saknas i /etc/passwd.
+#    nss_wrapper mappar användaren "coder" till aktuellt UID så att
+#    ssh-keygen, sshd och verktyg som git fungerar.
 if [ "$(id -u)" != "1000" ]; then
     export NSS_WRAPPER_PASSWD=/tmp/passwd
     export NSS_WRAPPER_GROUP=/etc/group
@@ -23,4 +26,5 @@ fi
 exec code-server \
   --bind-addr 0.0.0.0:8080 \
   --auth "${CS_AUTH:-none}" \
+  --extensions-dir "${EXTENSIONS_DIR:-/opt/code-server/extensions}" \
   /home/coder/workspace
