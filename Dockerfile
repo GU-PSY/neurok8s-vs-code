@@ -42,7 +42,13 @@ RUN useradd -m -u 1000 -s /bin/bash coder && \
 RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server-${CODESERVER_VERSION}-amd64.rpm" \
         -o /tmp/code-server.rpm && \
     dnf install -y /tmp/code-server.rpm && \
-    rm /tmp/code-server.rpm
+    rm /tmp/code-server.rpm \
+
+# ── VS Code extensions
+ENV EXTENSIONS_DIR=/home/coder/.local/share/code-server/extensions
+RUN mkdir -p $EXTENSIONS_DIR
+RUN code-server --extensions-dir $EXTENSIONS_DIR --install-extension KorbinianEckstein.niivue
+
 
 # ── SSH (port 2222) – egen config så sshd kan köras som icke-root
 RUN printf '%s\n' \
