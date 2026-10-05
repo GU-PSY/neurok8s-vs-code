@@ -39,7 +39,7 @@ RUN useradd -m -u 1000 -s /bin/bash coder && \
     usermod -aG root coder
 
 # ── Installera code-server via RPM (låst version, ändra med --build-arg)
-RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server_${CODESERVER_VERSION}_amd64.rpm" \
+RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server-${CODESERVER_VERSION}-amd64.rpm" \
         -o /tmp/code-server.rpm && \
     dnf install -y /tmp/code-server.rpm && \
     rm /tmp/code-server.rpm
