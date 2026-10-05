@@ -1,15 +1,19 @@
-FROM registry.access.redhat.com/ubi9/ubi:latest
+FROM quay.io/rockylinux/rockylinux:9
 
 ARG CODESERVER_VERSION=4.140.0
 
 USER root
-RUN dnf update -y && \
-    dnf install -y \
-        https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm && \
-    dnf install -y \
+# CRB + EPEL behövs för openblas-devel, lapack-devel och hdf5-devel.
+# --allowerasing byter ut curl-minimal mot fullständig curl.
+RUN dnf install -y dnf-plugins-core epel-release && \
+    dnf config-manager --set-enabled crb && \
+    dnf update -y && \
+    dnf install -y --allowerasing \
         python3 \
         python3-pip \
         python3-devel \
+        gcc \
+        gcc-c++ \
         openblas-devel \
         lapack-devel \
         hdf5-devel \
@@ -25,7 +29,7 @@ RUN dnf update -y && \
         file \
         tree \
         openssh-server \
-        nss_wrapper \
+        nss_wrapper-libs \
         shadow-utils \
     && dnf clean all \
     && rm -rf /var/cache/dnf
