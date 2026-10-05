@@ -3,8 +3,7 @@ FROM quay.io/rockylinux/rockylinux:9
 ARG CODESERVER_VERSION=4.140.0
 
 USER root
-# CRB + EPEL behövs för openblas-devel, lapack-devel och hdf5-devel.
-# --allowerasing byter ut curl-minimal mot fullständig curl.
+
 RUN dnf install -y dnf-plugins-core epel-release && \
     dnf config-manager --set-enabled crb && \
     dnf update -y && \
@@ -39,11 +38,11 @@ RUN useradd -m -u 1000 -s /bin/bash coder && \
     usermod -aG root coder
 
 # ── Installera code-server via RPM (låst version, ändra med --build-arg)
-RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server-${CODESERVER_VERSION}-amd64.rpm" \
+ARG TARGETARCH
+RUN curl -fsSL "https://github.com/coder/code-server/releases/download/v${CODESERVER_VERSION}/code-server-${CODESERVER_VERSION}-${TARGETARCH}.rpm" \
         -o /tmp/code-server.rpm && \
     dnf install -y /tmp/code-server.rpm && \
-    rm /tmp/code-server.rpm \
-
+    rm /tmp/code-server.rpm
 
 # ── SSH (port 2222) – egen config så sshd kan köras som icke-root
 RUN printf '%s\n' \
@@ -72,9 +71,7 @@ ENV EXTENSIONS_DIR=/home/coder/.local/share/code-server/extensions
 RUN mkdir -p $EXTENSIONS_DIR
 RUN code-server --extensions-dir $EXTENSIONS_DIR \
         --install-extension ms-python.python \
-        --install-extension ms-python.black-formatter \
-        --install-extension KorbinianEckstein.niivue
-
+        --install-extension ms-python.black-formatter
 # ── SSH-katalog (authorized_keys monteras in vid körning)
 RUN mkdir -p /home/coder/.ssh/hostkeys
 
