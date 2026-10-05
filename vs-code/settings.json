@@ -1,0 +1,15 @@
+{
+    "python.defaultInterpreterPath": "/opt/venv/bin/python",
+    "editor.formatOnSave": true,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
+    "python.analysis.typeCheckingMode": "basic",
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "editor.rulers": [88],
+    "files.trimTrailingWhitespace": true,
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "workbench.colorTheme": "Default Dark Modern",
+    "code-server.proxyDomain": "localhost"
+}
